@@ -25,27 +25,28 @@ public class AplicacionClientes {
     /**
      * @param args the command line arguments
      */
-    private static GestionCliente gestion = new GestionCliente();
+    //private static GestionCliente gestion = new GestionCliente();
     private static Scanner teclado = new Scanner(System.in);
     private static final String ARCHIVO_DATOS = "clientes.dat";
 
     public static void main(String[] args) {
-        cargarDatos();
+        GestionCliente gestion = cargarDatos();
+        
         int opcion;
         do {
             mostrarMenu();
             opcion = leerEntero();
             switch (opcion) {
                 case 1 ->
-                    agregarCliente();
+                    agregarCliente(gestion);
                 case 2 ->
-                    listarClientes();
+                    listarClientes(gestion);
                 case 3 ->
-                    borrarCliente();
+                    borrarCliente(gestion);
                 case 4 ->
-                    exportarListado();
+                    exportarListado(gestion);
                 case 5 -> {
-                    guardarDatos();
+                    guardarDatos(gestion);
                     System.out.println("Saliendo del sistema");
                 }
                 default ->
@@ -76,7 +77,7 @@ public class AplicacionClientes {
         return valor;
     }
 
-    private static void agregarCliente() {
+    private static void agregarCliente(GestionCliente gestion) {
         System.out.println("\nNuevo cliente");
 
         System.out.print("Nombre: ");
@@ -97,12 +98,12 @@ public class AplicacionClientes {
         }
     }
 
-    private static void listarClientes() {
+    private static void listarClientes(GestionCliente gestion) {
         System.out.println("\n Listado de clientes");
         System.out.println(gestion.toString());
     }
 
-    private static void borrarCliente() {
+    private static void borrarCliente(GestionCliente gestion) {
         if (gestion.getNumeroClientes() == 0) {
             System.out.println("No hay clientes para borrar.");
             return;
@@ -129,7 +130,7 @@ public class AplicacionClientes {
         }
     }
 
-    private static void exportarListado() {
+    private static void exportarListado(GestionCliente gestion) {
         System.out.println("\nListado a archivo");
         System.out.print("Nombre del archivo de salida: ");
         String nombreArchivo = teclado.nextLine();
@@ -152,23 +153,25 @@ public class AplicacionClientes {
         }
     }
 
-    private static void cargarDatos() {
+    private static GestionCliente cargarDatos() {
         File archivo = new File(ARCHIVO_DATOS);
         if (archivo.exists()) {
             try (ObjectInputStream ficheroDatos = new ObjectInputStream(new FileInputStream(archivo))) {
-                gestion = (GestionCliente) ficheroDatos.readObject();
+                GestionCliente gestionCargada = (GestionCliente) ficheroDatos.readObject();
                 System.out.println("Datos anteriores cargados correctamente.");
+                return gestionCargada;
             } catch (IOException | ClassNotFoundException e) {
                 System.err.println("Error al cargar el archivo. Iniciando con datos nuevos.");
-                gestion = new GestionCliente();
+                return new GestionCliente();
             }
         } else {
-            gestion = new GestionCliente();
+            
             System.out.println("No existe archivo de guardado. Iniciando con datos nuevos.");
+            return new GestionCliente();
         }
     }
 
-    private static void guardarDatos() {
+    private static void guardarDatos(GestionCliente gestion) {
         try (ObjectOutputStream ficheroDatos = new ObjectOutputStream(new FileOutputStream(ARCHIVO_DATOS))) {
             ficheroDatos.writeObject(gestion);
             System.out.println("Datos guardados correctamente.");
