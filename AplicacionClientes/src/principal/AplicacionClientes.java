@@ -30,7 +30,7 @@ public class AplicacionClientes {
     private static final String ARCHIVO_DATOS = "clientes.dat";
 
     public static void main(String[] args) {
-        GestionCliente gestion = cargarDatos();
+        GestionCliente gestion = GestionCliente.cargarDatos(ARCHIVO_DATOS);
         
         int opcion;
         do {
@@ -46,7 +46,7 @@ public class AplicacionClientes {
                 case 4 ->
                     exportarListado(gestion);
                 case 5 -> {
-                    guardarDatos(gestion);
+                    gestion.guardarDatos(ARCHIVO_DATOS);
                     System.out.println("Saliendo del sistema");
                 }
                 default ->
@@ -152,32 +152,4 @@ public class AplicacionClientes {
             System.err.println("Error al exportar el listado: " + e.getMessage());
         }
     }
-
-    private static GestionCliente cargarDatos() {
-        File archivo = new File(ARCHIVO_DATOS);
-        if (archivo.exists()) {
-            try (ObjectInputStream ficheroDatos = new ObjectInputStream(new FileInputStream(archivo))) {
-                GestionCliente gestionCargada = (GestionCliente) ficheroDatos.readObject();
-                System.out.println("Datos anteriores cargados correctamente.");
-                return gestionCargada;
-            } catch (IOException | ClassNotFoundException e) {
-                System.err.println("Error al cargar el archivo. Iniciando con datos nuevos.");
-                return new GestionCliente();
-            }
-        } else {
-            
-            System.out.println("No existe archivo de guardado. Iniciando con datos nuevos.");
-            return new GestionCliente();
-        }
-    }
-
-    private static void guardarDatos(GestionCliente gestion) {
-        try (ObjectOutputStream ficheroDatos = new ObjectOutputStream(new FileOutputStream(ARCHIVO_DATOS))) {
-            ficheroDatos.writeObject(gestion);
-            System.out.println("Datos guardados correctamente.");
-        } catch (IOException e) {
-            System.err.println("Error al guardar los datos: " + e.getMessage());
-        }
-    }
-
 }
