@@ -4,6 +4,13 @@
  */
 package gestion;
 
+import dao.ClienteDAO;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import modelo.Cliente;
@@ -18,10 +25,31 @@ public class GestionCliente implements Serializable{
     
     private ArrayList<Cliente> clientes;
     
+    // transient es para que no se serialice (no es un dato de dominio)
+    private transient ClienteDAO dao;
+    
+    // constructor con inyección de dependencias
+    public GestionCliente(ClienteDAO dao) {
+        this.dao = dao;
+        this.clientes = new ArrayList<>();
+    }
     public GestionCliente() {
         this.clientes = new ArrayList<>();
     }
     
+    // como el atributo es transient es necesario para reasignar tras deserializacion
+    public void setDao(ClienteDAO dao) {
+        this.dao = dao;
+    }
+    
+    // se mantiene el método pero delega la existencia en el DAO inyectado
+    public void guardarDatos(String rutaArchivo) {
+        if (dao != null) {
+            dao.guardarDatos(this, rutaArchivo);
+        } else {
+            System.err.println("No se puede guardar: DAO no inicializado.");
+        }
+    }
     public boolean agregarCliente(Cliente cliente) {
         if (buscarPorEmail(cliente.getEmail()) == -1) {
             clientes.add(cliente);
